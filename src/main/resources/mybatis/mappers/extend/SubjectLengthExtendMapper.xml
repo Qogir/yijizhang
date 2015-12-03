@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ahyc.yjz.mapper.extend.SubjectLengthExtendMapper">
+
+<insert id="copySubjectLength" parameterType="java.util.Map">
+	INSERT INTO subject_length (LENGTH, LEVEL, book_id, company_id) 
+	SELECT 
+	  LENGTH,
+	  LEVEL,
+	  #{newBookId,jdbcType=BIGINT},
+	  company_id 
+	FROM
+	  subject_length 
+	WHERE book_id = #{oldBookId,jdbcType=BIGINT}
+</insert>
+
+</mapper>

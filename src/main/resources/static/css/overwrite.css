@@ -1,0 +1,26 @@
+.tabs li a.tabs-inner{
+	border-color:#d4d4d4;
+}
+
+.button-tiny-18{
+	width: 18px;
+	font-size: 9.6px;
+	height: 18px;
+	line-height: 18px;
+	padding: 0 18px;
+	background: transparent;
+	margin: 0 0 0 5px;
+}
+
+.button-tiny-18:hover{
+	color: #a5de37;
+}
+
+
+.layout-panel-east{
+	height: 100%;
+}
+
+.layout-panel-center{
+	height: 100%;
+}

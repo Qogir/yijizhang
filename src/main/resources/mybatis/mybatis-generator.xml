@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!-- mybatis-generator插件生成代码的配置文件 -->
+<generatorConfiguration>
+
+    <!--<classPathEntry location="F:\mysql-connector-java-5.1.24.jar" />-->
+
+    <context id="MySQLTables" targetRuntime="MyBatis3">
+
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+
+        <commentGenerator>
+            <property name="suppressAllComments" value="false"/>
+        </commentGenerator>
+
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://183.166.59.103:8866/yjz?useUnicode=true&amp;characterEncoding=UTF-8"
+                        userId="root" password="root">
+        </jdbcConnection>
+
+        <!-- java类型处理器，默认的就这么一个处理器可以用，可以自己写，具体的请参考官方文档http://code.google.com/p/mybatis/wiki/Generator -->
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 生成 Model，POJO -->
+        <javaModelGenerator targetPackage="cn.ahyc.yjz.model"
+                            targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="constructorBased" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成映射文件*.xml -->
+        <sqlMapGenerator targetPackage="mybatis/mappers/base"
+                         targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- 生成映射器类 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="cn.ahyc.yjz.mapper.base" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!-- 指定要生成的表名和对应形成的POJO类名 -->
+        <!--<table tableName="account_subject" domainObjectName="AccountSubject" />-->
+        <!--<table tableName="account_subject_template" domainObjectName="AccountSubjectTemplate" />-->
+
+        <!--<table tableName="cash_flow_data" domainObjectName="CashFlowData"/>-->
+        <!--<table tableName="cash_flow" domainObjectName="CashFlow"/>-->
+        <table tableName="cash_flow_sheet" domainObjectName="CashFlowSheet"/>
+
+        <!--<table tableName="account_book" domainObjectName="AccountBook" />-->
+        <!--<table tableName="profit" domainObjectName="Profit" />-->
+
+        <!--<table tableName="company_common_type" domainObjectName="CompanyCommonType" />-->
+        <!--<table tableName="company_common_value" domainObjectName="CompanyCommonValue" />-->
+        <!--<table tableName="dict_type" domainObjectName="DictType" />-->
+        <!--<table tableName="dict_value" domainObjectName="DictValue" />-->
+        <!--<table tableName="period" domainObjectName="Period" />-->
+        <!--<table tableName="subject_balance" domainObjectName="SubjectBalance" />-->
+        <!--<table tableName="subject_length" domainObjectName="SubjectLength" />-->
+        <!--<table tableName="profit_period" domainObjectName="ProfitPeriod"/>-->
+        <!--<table tableName="profit_template" domainObjectName="ProfitTemplate"/>-->
+        <!--<table tableName="voucher" domainObjectName="Voucher" />-->
+        <!--<table tableName="voucher_detail" domainObjectName="VoucherDetail" />-->
+        <!--<table tableName="voucher_template" domainObjectName="VoucherTemplate" />-->
+        <!--<table tableName="voucher_template_detail" domainObjectName="VoucherTemplateDetail" />-->
+        <!--<table tableName="login_history" domainObjectName="LoginHistory"/>-->
+        <!--<table tableName="users" domainObjectName="User" />-->
+        <!--<table tableName="action_log" domainObjectName="ActionLog" />-->
+    </context>
+</generatorConfiguration>

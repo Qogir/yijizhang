@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ahyc.yjz.mapper.extend.AccountSubjectExtendMapper">
+
+    <resultMap id="TextNameResultMap" type="cn.ahyc.yjz.dto.AccountSubjectTextNameDto"
+               extends="cn.ahyc.yjz.mapper.base.AccountSubjectMapper.BaseResultMap">
+        <result property="subjectTextname" column="subject_textname" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getTotalBalance" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT IFNULL(SUM(tt.total_debit), 0) - IFNULL(SUM(tt.total_credit), 0) AS dValue, IFNULL(SUM(tt.total_debit), 0) AS sum_total_debit, IFNULL(SUM(tt.total_credit), 0) AS sum_total_credit
+        FROM (SELECT t.subject_code, t.direction, t.total_credit, t.total_debit, t.initial_left
+            FROM account_subject t
+            WHERE NOT EXISTS (SELECT t1.id
+                    FROM account_subject t1, account_subject t2
+                    WHERE t1.subject_code = t2.parent_subject_code
+                        AND t.subject_code = t1.subject_code
+                        AND t1.book_id = t2.book_id
+                        AND t.book_id = t1.book_id)
+                AND t.book_id = #{bookId}
+            ORDER BY CAST(t.subject_code AS CHAR)
+            ) tt
+    </select>
+
+    <select id="getInitLeftBalance" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT IFNULL(SUM(tt1.sum_total_debit) - SUM(tt1.sum_total_credit), 0) AS dValue, SUM(tt1.sum_total_credit) AS sum_total_credit, SUM(tt1.sum_total_debit) AS sum_total_debit
+        FROM (SELECT SUM(IF(tt.direction = 1, tt.initial_left, 0)) AS sum_total_debit, SUM(IF(tt.direction = 2, tt.initial_left, 0)) AS sum_total_credit
+            FROM (SELECT t.subject_code, t.direction, t.total_credit, t.total_debit, t.initial_left
+                FROM account_subject t
+                WHERE NOT EXISTS (SELECT t1.id
+                        FROM account_subject t1, account_subject t2
+                        WHERE t1.subject_code = t2.parent_subject_code
+                            AND t.subject_code = t1.subject_code
+                            AND t1.book_id = t2.book_id
+                            AND t.book_id = t1.book_id)
+                    AND t.book_id = #{bookId}
+                ORDER BY CAST(t.subject_code AS CHAR)
+                ) tt
+            GROUP BY tt.direction
+            ) tt1
+    </select>
+
+    <select id="getParentSum" resultType="java.util.Map">
+        SELECT t1.parent_subject_code, t1.total_credit, t1.total_debit, t1.year_occur_amount, t1.initial_left,
+        t2.book_id,
+        t2.subject_code,
+        t2.sum_total_debit,
+        t2.sum_total_credit,
+        (CASE t1.direction WHEN 1 THEN t2.sum_initial_left ELSE -t2.sum_initial_left END) AS sum_initial_left,
+        (CASE t1.direction WHEN 1 THEN t2.sum_year_occur_amount ELSE -t2.sum_year_occur_amount END) AS
+        sum_year_occur_amount
+        FROM account_subject t1, (
+        SELECT
+        t.book_id,
+        t.parent_subject_code AS subject_code,
+        SUM(t.total_debit) AS sum_total_debit,
+        SUM(t.total_credit) AS sum_total_credit,
+        SUM(CASE t.direction WHEN 1 THEN t.initial_left ELSE -t.initial_left END) AS sum_initial_left,
+        SUM(CASE t.direction WHEN 1 THEN t.year_occur_amount ELSE -t.year_occur_amount END) AS
+        sum_year_occur_amount
+        FROM account_subject t WHERE t.parent_subject_code IN
+
+        <foreach collection="parentSubjectCodes" item="parentSubjectCode" open="(" separator="," close=")">
+            #{parentSubjectCode}
+        </foreach>
+
+        AND t.book_id = #{bookId}
+        GROUP BY t.parent_subject_code
+        ) t2
+        WHERE t1.book_id = t2.book_id
+        AND t2.subject_code = t1.subject_code
+    </select>
+
+    <select id="getLastChildSum" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT t3.parent_subject_code, t3.total_credit, t3.total_debit, t3.year_occur_amount, t3.initial_left,
+          t4.subject_code,
+          t4.sum_total_debit,
+          t4.sum_total_credit,
+          (CASE t3.direction WHEN 1 THEN t4.sum_initial_left ELSE -t4.sum_initial_left END) AS sum_initial_left,
+	      (CASE t3.direction WHEN 1 THEN t4.sum_year_occur_amount ELSE -t4.sum_year_occur_amount END) AS sum_year_occur_amount
+        FROM account_subject t3, (
+            SELECT
+                t.parent_subject_code AS subject_code,
+                SUM(t.total_debit) AS sum_total_debit,
+                SUM(t.total_credit) AS sum_total_credit,
+                SUM(CASE t.direction WHEN 1 THEN t.initial_left ELSE -t.initial_left END ) AS sum_initial_left,
+                SUM(CASE t.direction WHEN 1 THEN t.year_occur_amount ELSE -t.year_occur_amount END ) AS sum_year_occur_amount
+                FROM account_subject t
+            WHERE NOT EXISTS (SELECT t1.id
+                    FROM account_subject t1, account_subject t2
+                    WHERE t1.subject_code = t2.parent_subject_code
+                        AND t.subject_code = t1.subject_code
+                        AND t1.book_id = t2.book_id
+                        AND t.book_id = t1.book_id)
+                AND t.book_id = #{bookId}
+                AND t.parent_subject_code > 0
+            GROUP BY t.parent_subject_code
+            ORDER BY CAST(t.subject_code AS CHAR)
+            ) t4
+        WHERE t3.book_id = #{bookId} AND t3.subject_code = t4.subject_code
+    </select>
+
+    <select id="getSubjectsByCategoryId" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT t2.subject_code AS id, t2.subject_name AS text, (
+                SELECT CASE COUNT(1) WHEN 0 THEN 'open' ELSE 'closed' END
+                FROM account_subject t3
+                WHERE t3.book_id = t1.book_id
+                    AND t3.parent_subject_code = t2.subject_code
+                ) AS state, t2.id AS id_back, t2.subject_name, t2.direction
+            , t2.subject_code, t2.`level`, t2.base_flag, IFNULL(t4.length, 2) AS next_level_length, t3.subject_code AS category_datail_subject_code
+            , t3.subject_name AS category_datail_subject_name, IFNULL((
+                SELECT COUNT(tt2.id)
+                FROM period tt, voucher tt1, voucher_detail tt2
+                WHERE tt.book_id = t1.book_id
+                    AND tt1.period_id = tt.id
+                    AND tt1.id = tt2.voucher_id
+                    AND tt2.subject_code = t2.subject_code
+                ), 0) AS haveVoucher, IFNULL(t2.total_credit, 0) + IFNULL(t2.total_debit, 0) + IFNULL(t2.initial_left, 0) + IFNULL(t2.year_occur_amount, 0) AS haveInitData
+        FROM account_subject t1, account_subject t2, account_subject t3, subject_length t4
+        WHERE t1.book_id = #{bookId}
+            AND t1.book_id = t2.book_id
+            AND t1.book_id = t3.book_id
+            AND t1.book_id = t4.book_id
+            AND t1.parent_subject_code = #{parent_subject_code}
+            AND t2.parent_subject_code = t1.subject_code
+            AND t3.subject_code = t2.parent_subject_code
+            AND t4.`level` = t2.`level` + 1
+        ORDER BY t2.subject_code
+    </select>
+
+    <select id="getChildrenSubjectsByCategoryId" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT t1.subject_code AS id, t1.subject_name AS text, (
+                SELECT CASE COUNT(1) WHEN 0 THEN 'open' ELSE 'closed' END
+                FROM account_subject t3
+                WHERE t3.book_id = t1.book_id
+                    AND t3.parent_subject_code = t1.subject_code
+                ) AS state, t1.id AS id_back, t1.subject_name, t1.direction
+            , t1.subject_code, t1.`level`, t1.base_flag, IFNULL(t4.length, 2) AS next_level_length
+            , IFNULL((
+                SELECT COUNT(tt2.id)
+                FROM period tt, voucher tt1, voucher_detail tt2
+                WHERE tt.book_id = t1.book_id
+                    AND tt1.period_id = tt.id
+                    AND tt1.id = tt2.voucher_id
+                    AND tt2.subject_code = t1.subject_code
+                ), 0) AS haveVoucher, IFNULL(t1.total_credit, 0) + IFNULL(t1.total_debit, 0) + IFNULL(t1.initial_left, 0) + IFNULL(t1.year_occur_amount, 0) AS haveInitData
+        FROM account_subject t1, subject_length t4
+        WHERE t1.book_id = #{bookId}
+            AND t1.book_id = t4.book_id
+            AND t1.parent_subject_code = #{parent_subject_code}
+            AND t4.`level` = t1.`level` + 1
+        ORDER BY t1.subject_code
+    </select>
+
+    <select id="selectLastChildSubject" parameterType="java.lang.Long" resultMap="TextNameResultMap">
+        SELECT t.*, CONCAT(t.subject_code,' ',t.subject_name) as subject_textname
+        FROM account_subject t
+        WHERE
+        t.book_id = #{bookId}
+        AND LEVEL > 0
+        AND NOT EXISTS (SELECT parent_subject_code FROM account_subject b WHERE t.subject_code = b.parent_subject_code
+        AND b.book_id = #{bookId})
+        <if test="subjectCode != null">
+            AND cast(t.subject_code AS CHAR) = #{subjectCode}
+        </if>
+        ORDER BY
+        CONCAT(t.subject_code,'')
+    </select>
+    <select id="getSubjectCodeByRoot" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT 
+		  c.subject_code 
+		FROM
+		  account_subject a,
+		  account_subject b,
+		  account_subject c 
+		WHERE a.subject_code = b.parent_subject_code
+		  AND b.subject_code = c.parent_subject_code 
+		  AND a.book_id = b.book_id 
+		  AND a.book_id = c.book_id 
+		  AND a.subject_code = - 6 
+		  AND a.book_id = #{bookId,jdbcType=BIGINT} 
+		LIMIT 1 
+    </select>
+    <select id="searchVoucherCollect" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(f.`subject_code`, '') AS subject_code,
+        IF(
+        ISNULL(f.`subject_code`),
+        '合计',
+        f.`subject_name`
+        ) AS subject_name,
+        FORMAT(f.debit,2) as debit,
+        FORMAT(f.credit,2) as credit
+        FROM
+        (SELECT
+        e.subject_code,
+        e.`subject_name`,
+        SUM(d.debit) AS debit,
+        SUM(d.credit) AS credit
+        FROM
+        `account_subject` e,
+        (SELECT
+        b.`debit`,
+        b.`credit`,
+        LEFT(b.`subject_code`, 4) AS subject_code,
+        c.`book_id`
+        FROM
+        `voucher` a,
+        `voucher_detail` b,
+        `period` c
+        WHERE a.`id` = b.`voucher_id`
+        AND a.`period_id` = c.`id`
+        AND c.`book_id` = #{bookId,jdbcType=BIGINT}
+        <if test="startTime != null and startTime !=''">
+            AND a.`voucher_time` BETWEEN #{startTime,jdbcType=VARCHAR}
+        </if>
+        <if test="endTime != null and endTime !=''">
+            AND #{endTime,jdbcType=VARCHAR}
+        </if>
+        <if test="voucherWord != null and voucherWord !=''">
+            AND a.`voucher_word` = #{voucherWord,jdbcType=VARCHAR}
+        </if>
+        <if test="voucherStartNo != null and voucherStartNo !=''">
+            AND a.`voucher_no` BETWEEN #{voucherStartNo,jdbcType=INTEGER}
+        </if>
+        <if test="voucherEndNo != null and voucherEndNo !=''">
+            AND #{voucherEndNo,jdbcType=INTEGER}
+        </if>
+        ) d
+        WHERE d.subject_code = e.`subject_code`
+        AND d.book_id = e.`book_id`
+        GROUP BY e.`subject_code` WITH ROLLUP) f
+        ORDER BY
+        CASE
+        WHEN f.subject_code IS NULL
+        THEN 1
+        ELSE 0
+        END,
+        f.subject_code ASC
+    </select>
+    <insert id="copyAccountSubject" parameterType="java.util.Map">
+		INSERT INTO account_subject (
+		  subject_code,
+		  subject_name,
+		  parent_subject_code,
+		  LEVEL,
+		  tip_info,
+		  direction,
+		  book_id,
+		  initial_left,
+		  end_flag,
+		  base_flag,
+		  company_id
+		) 
+		SELECT 
+		  a.subject_code,
+		  a.subject_name,
+		  a.parent_subject_code,
+		  a.LEVEL,
+		  a.tip_info,
+		  a.direction,
+		  #{newBookId,jdbcType=BIGINT},
+		  CASE
+		    WHEN a.direction = 1 
+		    THEN b.terminal_debit_balance 
+		    WHEN a.direction = 2 
+		    THEN b.terminal_credit_balance 
+		    ELSE 0 
+		  END,
+		  0,
+		  a.base_flag,
+		  a.company_id 
+		FROM
+		  account_subject a 
+		  LEFT JOIN subject_balance b 
+		    ON a.subject_code = b.subject_code 
+		    AND a.book_id = b.book_id 
+		    AND b.period_id = #{periodId,jdbcType=BIGINT}
+		    AND b.book_id = #{oldBookId,jdbcType=BIGINT}
+		WHERE a.book_id = #{oldBookId,jdbcType=BIGINT}
+</insert>
+</mapper>

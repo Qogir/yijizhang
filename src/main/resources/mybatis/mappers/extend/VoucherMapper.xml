@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ahyc.yjz.mapper.extend.VoucherExtendMapper">
+  
+  <insert id="insertSelectiveReturnId" parameterType="cn.ahyc.yjz.model.Voucher" useGeneratedKeys="true" keyProperty="id">
+    insert into voucher
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null || id != 0">
+        id,
+      </if>
+      <if test="voucherWord != null">
+        voucher_word,
+      </if>
+      <if test="voucherNo != null">
+        voucher_no,
+      </if>
+      <if test="voucherTime != null">
+        voucher_time,
+      </if>
+      <if test="billNum != null">
+        bill_num,
+      </if>
+      <if test="auditUser != null">
+        audit_user,
+      </if>
+      <if test="postingUser != null">
+        posting_user,
+      </if>
+      <if test="touchingUser != null">
+        touching_user,
+      </if>
+      <if test="carryOver != null">
+        carry_over,
+      </if>
+      <if test="periodId != null">
+        period_id,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null || id != 0">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="voucherWord != null">
+        #{voucherWord,jdbcType=VARCHAR},
+      </if>
+      <if test="voucherNo != null">
+        #{voucherNo,jdbcType=INTEGER},
+      </if>
+      <if test="voucherTime != null">
+        #{voucherTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="billNum != null">
+        #{billNum,jdbcType=INTEGER},
+      </if>
+      <if test="auditUser != null">
+        #{auditUser,jdbcType=VARCHAR},
+      </if>
+      <if test="postingUser != null">
+        #{postingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="touchingUser != null">
+        #{touchingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="carryOver != null">
+        #{carryOver,jdbcType=INTEGER},
+      </if>
+      <if test="periodId != null">
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="selectMaxVoucherNo" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select ifnull(max(voucher_no),0)
+    from voucher
+    where period_id = #{period_id,jdbcType=BIGINT}
+  </select>
+
+  <select id="latestVouchers" parameterType="map" resultType="map">
+      SELECT
+        b.voucher_id,
+        DATE_FORMAT(a.voucher_time, '%m-%d') AS voucher_time,
+        CONCAT(
+            a.voucher_word,
+            '-',
+            a.voucher_no
+        ) AS voucher_word,
+        b.summary,
+        FORMAT(SUM(b.credit),2) AS count_sum
+    FROM
+        period p,
+        voucher a,
+        voucher_detail b
+    WHERE
+        p.book_id = #{bookId,jdbcType=BIGINT}
+        and a.period_id = #{currentPeriod,jdbcType=BIGINT}
+        and a.id = b.voucher_id
+        and a.period_id = p.id
+    GROUP BY
+        b.voucher_id
+    ORDER BY
+       voucher_time DESC, a.voucher_no DESC
+    LIMIT 6;
+  </select>
+</mapper>

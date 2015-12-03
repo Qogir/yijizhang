@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.ahyc.yjz.mapper.extend.UserExtendMapper" >
+  <resultMap id="BaseResultMap" type="cn.ahyc.yjz.model.User" >
+    <constructor >
+      <arg column="username" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="password" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enabled" jdbcType="BIT" javaType="java.lang.Boolean" />
+    </constructor>
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    username, password, enabled
+  </sql>
+
+  <select id="selectUserByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" /> FROM users WHERE username=#{username,jdbcType=VARCHAR} LIMIT 1
+  </select>
+
+  <update id="updatePassword" parameterType="map">
+    UPDATE users SET password=#{password,jdbcType=VARCHAR}
+    WHERE username=#{username,jdbcType=VARCHAR}
+  </update>
+
+</mapper>
