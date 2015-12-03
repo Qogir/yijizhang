@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ahyc.yjz.mapper.extend.CashFlowExtendMapper">
+
+  <resultMap id="ReportRow" type="cn.ahyc.yjz.dto.ReportRow">
+    <constructor>
+      <arg column="cA" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cB" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cC" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+
+  <select id="selectCashFlowExpressionColumn" resultMap="ReportRow">
+    select
+    	t.name as cA,
+    	t.auxiliary_exp as cB,
+    	t.real_exp as cC
+    from
+    	cash_flow_sheet t
+   	order by t.id asc
+  </select>
+</mapper>

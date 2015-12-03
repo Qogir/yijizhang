@@ -1,0 +1,277 @@
+/* Body CSS */
+body {
+    border: none;
+    margin: 0 auto;
+    padding: 0;
+    font-family: '微软雅黑';
+    font-size: 12px;
+}
+
+body, html {
+    height: 100%;
+}
+
+
+/** Welcome  */
+#canvas {
+    width: 100%;
+    height: 68%;
+    text-align: center;
+    margin: 0px auto;
+}
+
+#flowchartWindow1 {
+    top: 10%;
+    left: 15%;
+}
+
+#flowchartWindow2 {
+    top: 45%;
+    left: 45%;
+}
+
+#flowchartWindow3 {
+    top: 10%;
+    right: 15%;
+}
+
+#flowchartWindow4 {
+    bottom: 0%;
+    left: 15%;
+}
+
+#flowchartWindow5 {
+    bottom: 0%;
+    right: 15%;
+}
+
+.window._jsPlumb_connected {
+    border: 2px solid green;
+}
+
+.jsplumb-drag {
+    border: 4px solid pink !important;
+}
+
+path, ._jsPlumb_endpoint {
+    cursor: default;
+}
+
+._jsPlumb_overlay {
+    background-color: transparent;
+}
+
+
+/* 底部CSS */
+.foot {
+    text-align: center;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+    text-shadow: 2px 2px 2px #CCCCCC;
+    color: #FFFFFF;
+    background-color: #1b9af7;
+}
+
+/* 顶部CSS */
+.top-bar {
+    height: 30px;
+    background-color: #1b9af7;
+    overflow: hidden;
+}
+
+.top-bar .info {
+    color: #FFFFFF;
+    text-align: left;
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    text-shadow: 5px 5px 5px #CCCCCC;
+}
+
+.top-bar .info a {
+    color: #ffffff;
+    font-size: 10px;
+}
+
+.top-bar .info a:hover {
+    color: #CCCCCC;
+    font-size: 10px;
+}
+
+.top-bar .info .textbox {
+    border: none;
+    border-radius: 0px;
+}
+
+.top-bar .info b {
+    margin-left: 10px;
+}
+
+.top-bar .action {
+    text-align: right;
+    float: left;
+    width: 40%;
+}
+
+.top-bar ul {
+    list-style: none;
+    float: right;
+    margin: 0;
+}
+
+.top-bar ul li {
+    float: left;
+    margin: 0 20px;
+    height: 30px;
+    line-height: 30px;
+}
+
+.top-bar ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.top-menu {
+    overflow: hidden;
+}
+
+.top-menu button {
+    margin: 15px 20px 0px 20px;
+    font-size: 30px;
+    line-height: 10px;
+}
+
+/* 欢迎页面CSS */
+.welcome-panel {
+    width: 100%;
+    height: 100%;
+}
+
+.welcome-panel .welcome-tb {
+    margin-top: 2%;
+}
+
+.welcome-panel .welcome-tb button {
+    font-size: 40px;
+    line-height: 10px;
+    width: 80px !important;
+    height: 80px;
+}
+
+.chartBtnDiv {
+    width: 100%;
+    padding-top: 2%;
+    text-align: center;
+}
+
+.welcome-panel .chartBtnDiv button {
+    margin: 4%;
+}
+
+/** 错误页面 */
+#errorCenter a {
+    text-decoration: none;
+    font-size: 12px;
+    color: dimgrey;
+    margin: 20px;
+}
+
+/** 关于页面 */
+ul.aboutUl{
+    list-style-type: none;
+    margin: 10px 20px;
+    padding: 0px;
+}
+
+ul.aboutUl li{
+    margin: 15px 0px;
+    padding: 0px;
+}
+
+
+/** 查账浮层菜单样式 */
+
+.fc_menu_ul{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+.fc_menu_ul li{
+    margin: 10px 0px;
+    padding: 0px;
+}
+
+.fc_menu_ul li a{
+    color: #1b9af7;
+    text-decoration: none;
+    margin: 20px;
+    font-size: 12px;
+}
+
+.fc_menu_ul li a:hover{
+    color: #336699;
+}
+
+/** east 页面 */
+#latestBalanceTB{
+    width: 100%;
+}
+
+#latestBalanceTB td{
+    color: #333333;
+}
+
+#latestBalanceTB td a{
+    text-decoration: none;
+    color: #333333;
+}
+
+#latestBalanceTB td a:hover{
+    color: #00438a;
+}
+
+#latestVoucherTB{
+    width: 100%;
+}
+
+#latestVoucherTB td {
+    color: #333333;
+}
+
+#latestVoucherTB td a{
+    text-decoration: none;
+    color: #333333;
+}
+
+#latestVoucherTB td a:hover{
+    color: #00438a;
+}
+
+/**打印**/
+@media print { 
+	body {
+		width: 20in;
+        /*padding: 0.25in;
+        border: 1pt solid black;
+        text-align: justify;*/
+	}
+	.datagrid-view {
+		width: 20in;
+		font-size: 20in;
+        /*padding: 0.25in;
+        border: 1pt solid black;
+        text-align: justify;*/
+	}
+	/* 打印时去除选中行样式 */
+	.datagrid-row-selected {
+	    background: #fff;
+	    color: #333;
+	}
+	/* 打印页面边距 */
+	@page {
+		margin: 2cm;
+	}
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ahyc.yjz.mapper.extend.VoucherTemplateDetailExtendMapper">
+
+  <select id="selectTemplateDetailList" parameterType="java.util.Map" resultType="java.util.Map">
+    <![CDATA[
+    SELECT 	
+   		t.summary,
+   		t.subject_code as subjectCode,
+		CONCAT(
+			t.subject_code,
+			' ',
+			a.subject_name
+		) AS subjectTextName,
+		t.debit as newdebit,
+		t.credit as newcrebit
+    FROM voucher_template_detail t
+		LEFT JOIN account_subject a ON t.subject_code = a.subject_code AND a.book_id = #{bookId,jdbcType=BIGINT}
+	WHERE
+		t.template_id = #{voucherTemplateId,jdbcType=BIGINT}
+	ORDER BY
+		t.id ASC
+	]]>
+  </select>
+  
+  <select id="selectDetailTotal" parameterType="java.lang.Long" resultType="java.util.Map">
+    SELECT 	
+    	"合计：" as summary,
+    	CONVERT (sum(t.debit) * 100, DECIMAL) AS debit,
+		CONVERT (sum(t.credit) * 100, DECIMAL) AS credit
+    from voucher_template_detail t
+	WHERE
+		t.template_id = #{voucherTemplateId,jdbcType=BIGINT}
+  </select>
+  
+  <select id="selectDetailList" parameterType="java.util.Map" resultType="java.util.Map">
+    <![CDATA[
+    SELECT 	
+   		t.summary,
+   		t.subject_code AS subjectCode,
+   		t.debit as newdebit,
+   		t.credit as newcrebit,
+		CONCAT(
+			t.subject_code,
+			' ',
+			a.subject_name
+		) AS subjectTextName,
+		IF(t.debit<0,'-','') as dpn,
+		IF(t.credit<0,'-','') as crpn,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 1, 1),'a') AS dHundredMillion,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 2, 1),'a') AS dTenMillions,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 3, 1),'a') AS dMillions,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 4, 1),'a') AS dHundredThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 5, 1),'a') AS dTenThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 6, 1),'a') AS dThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 7, 1),'a') AS dHundred,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 8, 1),'a') AS dTen,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 9, 1),'a') AS dYuan,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 11, 1),'a') AS dAngle,
+		NULLIF(SUBSTRING(LPAD(ABS(t.debit), 12, 'a'), 12, 1),'a') AS dCent,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 1, 1),'a') AS crHundredMillion,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 2, 1),'a') AS crTenMillions,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 3, 1),'a') AS crMillions,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 4, 1),'a') AS crHundredThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 5, 1),'a') AS crTenThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 6, 1),'a') AS crThousand,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 7, 1),'a') AS crHundred,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 8, 1),'a') AS crTen,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 9, 1),'a') AS crYuan,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 11, 1),'a') AS crAngle,
+		NULLIF(SUBSTRING(LPAD(ABS(t.credit), 12, 'a'), 12, 1),'a') AS crCent
+    FROM voucher_template_detail t
+		LEFT JOIN account_subject a ON t.subject_code = a.subject_code AND a.book_id = #{bookId,jdbcType=BIGINT}
+	WHERE
+		t.template_id = #{voucherTemplateId,jdbcType=BIGINT}
+	ORDER BY
+		t.id ASC
+	]]>
+  </select>
+</mapper>
